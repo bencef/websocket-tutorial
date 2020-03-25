@@ -2,7 +2,7 @@
 
 import gevent
 from collections import namedtuple
-from flask import Flask, request, make_response, render_template
+from flask import Flask, request, make_response, render_template, redirect, url_for
 from gevent.pywsgi import WSGIServer
 from gevent.queue import Channel
 from geventwebsocket.exceptions import WebSocketError
@@ -16,22 +16,36 @@ IncomingMessage = namedtuple('IncomingMessage', ['sender', 'text'])
 
 @app.route('/')
 def root_handler():
+    return render_template('login.html')
+
+
+@app.route('/login')
+def login_handler():
+    resp = redirect(url_for('chat_handler'))
+    user_name = request.args.get('user-name', default='Anon')
+    resp.set_cookie('user-name', user_name)
+    return resp
+
+
+@app.route('/chat')
+def chat_handler():
     return render_template('index.html')
 
 
-@app.route('/echo')
-def echo_ws_handler():
+@app.route('/chat_ws')
+def chat_ws_handler():
     if request.environ.get('wsgi.websocket'):
         ws = request.environ['wsgi.websocket']
         global comm_channel
         comm_channel.put(Message(tag='Subscribe', payload=Subscribe(ws)))
         print(f'Incoming websocket: {repr(ws)}')
+        sender = request.cookies.get('user-name', default='Anon')
         try:
             while True:
                 message = ws.receive()
                 print(f'Message received: {message}')
                 comm_channel.put(Message(tag='IncomingMessage',
-                                         payload=IncomingMessage(sender='Anon', text=message)))
+                                         payload=IncomingMessage(sender=sender, text=message)))
         except WebSocketError:
             return ''
     else:
