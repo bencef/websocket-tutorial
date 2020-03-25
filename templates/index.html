@@ -12,8 +12,15 @@
               event.preventDefault();
               const input = document.getElementById('input');
               const data = input.value;
-              console.log('sent ' + data);
+              ws.send(data);
               input.value = '';
+          });
+
+          ws.addEventListener('message', function (event) {
+              const results = document.getElementById('results');
+              const paragraph = document.createElement('p');
+              paragraph.innerText = event.data;
+              results.appendChild(paragraph);
           });
       };
 

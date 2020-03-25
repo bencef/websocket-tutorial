@@ -3,6 +3,7 @@
 from geventwebsocket.handler import WebSocketHandler
 from gevent.pywsgi import WSGIServer
 from flask import Flask, request, make_response, render_template
+from geventwebsocket.exceptions import WebSocketError
 
 app = Flask('socket_test')
 
@@ -16,10 +17,13 @@ def echo_ws_handler():
     if request.environ.get('wsgi.websocket'):
         ws = request.environ['wsgi.websocket']
         print(f'Incoming websocket: {repr(ws)}')
-        message = ws.receive()
-        print(f'Message received: {message}')
-        ws.send(message)
-        return ''
+        try:
+            while True:
+                message = ws.receive()
+                print(f'Message received: {message}')
+                ws.send(message)
+        except WebSocketError:
+            return ''
     else:
         print('Couldn''t establish websocket connection.')
     bad_request = 400
