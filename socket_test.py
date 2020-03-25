@@ -2,7 +2,7 @@
 
 from geventwebsocket.handler import WebSocketHandler
 from gevent.pywsgi import WSGIServer
-from flask import Flask, request
+from flask import Flask, request, make_response
 
 app = Flask('socket_test')
 
@@ -19,9 +19,11 @@ def echo_ws_handler():
         message = ws.receive()
         print(f'Message received: {message}')
         ws.send(message)
+        return ''
     else:
         print('Couldn''t establish websocket connection.')
-    return 'dummy return'
+    bad_request = 400
+    return make_response('Only wbsockets supported on this endpoint', bad_request)
 
 
 def main():
