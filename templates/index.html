@@ -2,8 +2,30 @@
 <html>
   <head>
     <title>Super duper chat app</title>
+    <script type="text/javascript">
+      const init = () => {
+          const ws = new WebSocket('ws://localhost:8000/echo');
+
+          const form = document.getElementById('send-form');
+
+          form.addEventListener('submit', (event) => {
+              event.preventDefault();
+              const input = document.getElementById('input');
+              const data = input.value;
+              console.log('sent ' + data);
+              input.value = '';
+          });
+      };
+
+      window.addEventListener('DOMContentLoaded', init);
+    </script>
   </head>
   <body>
     <h1>Super duper chat app</h1>
+    <form action="#" id="send-form">
+      <input type="text" id="input">
+      <button type="submit">Send</button>
+    </form>
+    <div id="results"></div>
   </body>
 </html>
