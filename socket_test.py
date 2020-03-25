@@ -2,13 +2,13 @@
 
 from geventwebsocket.handler import WebSocketHandler
 from gevent.pywsgi import WSGIServer
-from flask import Flask, request, make_response
+from flask import Flask, request, make_response, render_template
 
 app = Flask('socket_test')
 
 @app.route('/')
 def root_handler():
-    return 'Hello from the server!'
+    return render_template('index.html')
 
 
 @app.route('/echo')
